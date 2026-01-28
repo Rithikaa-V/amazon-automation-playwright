@@ -4,8 +4,8 @@ export async function autoScroll(page: Page) {
   await page.evaluate(async () => {
     await new Promise<void>(resolve => {
       let totalHeight = 0;
-      const distance = 300; // Slower scroll distance
-      const maxScrolls = 40; // Increased scrolls for visibility
+      const distance = 300; 
+      const maxScrolls = 40; 
       let scrolls = 0;
 
       const timer = setInterval(() => {
@@ -18,7 +18,7 @@ export async function autoScroll(page: Page) {
           clearInterval(timer);
           resolve();
         }
-      }, 300); // Slower interval
+      }, 300);
     });
   });
 }

@@ -31,9 +31,9 @@ export class AmazonCheckoutPage {
     async selectAddress(partialAddressText: string) {
         console.log(`Selecting address containing: "${partialAddressText}"`);
 
-        const addressTextLocator = this.page.locator('label, .address-book-entry, span').filter({ hasText: new RegExp(partialAddressText, 'i') }).first();
+        const addressTextLocator = this.page.locator('label, .address-book-entry').filter({ hasText: new RegExp(partialAddressText, 'i') }).first();
         try {
-            await addressTextLocator.waitFor({ state: 'visible', timeout: 40000 });
+            await addressTextLocator.waitFor({ state: 'visible', timeout: 15000 });
         } catch (e) {
             console.log('Address text not visible yet, attempting selection anyway...');
         }
@@ -42,9 +42,14 @@ export class AmazonCheckoutPage {
         const label = this.page.locator('label').filter({ hasText: new RegExp(partialAddressText, 'i') }).first();
         const addressContainer = this.page.locator('.address-book-entry').filter({ hasText: new RegExp(partialAddressText, 'i') }).first();
 
-        if (await label.isVisible()) {
-            await label.click();
-        } else if (await addressContainer.count() > 0) {
+        try {
+            await label.click({ timeout: 5000 });
+            return;
+        } catch (e) {
+            console.log('Label click failed or not visible, trying other methods...');
+        }
+
+        if (await addressContainer.count() > 0) {
             const radioButton = addressContainer.locator('input[type="radio"]');
             if (await radioButton.isVisible()) {
                 await radioButton.click({ force: true });

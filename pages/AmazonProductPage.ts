@@ -38,14 +38,15 @@ export class AmazonProductPage {
         this.page.locator('#availability');
 
     async addToCart() {
-        await expect(this.addToCartButton())
+        const addToCartBtn = this.addToCartButton();
+        await expect(addToCartBtn)
             .toBeVisible({ timeout: 20000 });
 
-        await this.addToCartButton().click();
+        await addToCartBtn.click();
 
-        // Wait for any of the success indicators
-        const successMessage = this.page.locator('#NATC_SMART_WAGON_CONF_MSG_SUCCESS, #attach-added-to-cart-message, [data-v-c-message-success], .a-alert-success, h1:has-text("Added to Cart")');
-        await expect(successMessage.first()).toBeVisible({ timeout: 20000 });
+        const successMessage = this.page.locator('.a-alert-success, #attach-added-to-cart-message, #NATC_SMART_WAGON_CONF_MSG_SUCCESS');
+        await expect(successMessage).toBeVisible({ timeout: 20000 });
+        expect(await successMessage.count()).toBeGreaterThan(0);
     }
 
 

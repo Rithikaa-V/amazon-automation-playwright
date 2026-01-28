@@ -88,11 +88,9 @@ export class AmazonSearchPage {
   }
 
   async clickFirstResult() {
-    // Wait for at least one search result to be visible
     const firstResult = this.searchResults().first();
     await firstResult.waitFor({ state: 'visible', timeout: 15000 });
 
-    // Target any link that contains the product title - common classes: s-no-outline, a-link-normal
     const firstResultLink = firstResult.locator('h2 a, a.a-link-normal').first();
     await firstResultLink.waitFor({ state: 'visible', timeout: 10000 });
     await firstResultLink.click();
