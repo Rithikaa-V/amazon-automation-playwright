@@ -66,14 +66,14 @@ jobs:
           PROJECTS="--project=public"
           if [ -n "$AMAZON_STORAGE_STATE_B64" ]; then PROJECTS="$PROJECTS --project=setup --project=account"; fi
           npx playwright test $PROJECTS --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} ${{ github.event_name != 'schedule' && '--grep-invert @exploratory' || '' }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: blob-report-${{ matrix.shardIndex }}
           path: blob-report
           if-no-files-found: error
           retention-days: 7
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results-${{ matrix.shardIndex }}
@@ -98,7 +98,7 @@ jobs:
       - name: Merge HTML report
         if: ${{ hashFiles('all-blob-reports/**') != '' }}
         run: npx playwright merge-reports --reporter html ./all-blob-reports
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ hashFiles('all-blob-reports/**') != '' }}
         with:
           name: playwright-html-report
