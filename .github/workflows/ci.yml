@@ -50,7 +50,6 @@ jobs:
         shardIndex: [1, 2]
         shardTotal: [2]
     env:
-      HOME: /root
       ON_BOT_CHECK: skip        # CAPTCHA on a datacenter IP = skipped + annotated, not "failed"
       # Optional secrets. Absent (e.g. forks) => account tests are simply not registered.
       AMAZON_STORAGE_STATE_B64: ${{ secrets.AMAZON_STORAGE_STATE_B64 }}
@@ -61,16 +60,18 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - name: Run E2E (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
-        # @exploratory tests (random home-page feed) run nightly only
-        run: >
-          npx playwright test --project=public --project=setup --project=account
-          --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-          ${{ github.event_name != 'schedule' && '--grep-invert @exploratory' || '' }}
+        # `account` + `setup` are only registered when a session secret exists, so only name them then.
+        # @exploratory tests (random home-page feed) run nightly only.
+        run: |
+          PROJECTS="--project=public"
+          if [ -n "$AMAZON_STORAGE_STATE_B64" ]; then PROJECTS="$PROJECTS --project=setup --project=account"; fi
+          npx playwright test $PROJECTS --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} ${{ github.event_name != 'schedule' && '--grep-invert @exploratory' || '' }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: blob-report-${{ matrix.shardIndex }}
           path: blob-report
+          if-no-files-found: error
           retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -81,7 +82,7 @@ jobs:
 
   merge-reports:
     name: Merge HTML report
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.e2e.result != 'skipped' }}
     needs: e2e
     runs-on: ubuntu-latest
     steps:
@@ -94,8 +95,11 @@ jobs:
           path: all-blob-reports
           pattern: blob-report-*
           merge-multiple: true
-      - run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - name: Merge HTML report
+        if: ${{ hashFiles('all-blob-reports/**') != '' }}
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
       - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('all-blob-reports/**') != '' }}
         with:
           name: playwright-html-report
           path: playwright-report
