@@ -1,0 +1,14 @@
+services:
+  tests:
+    build: .
+    ipc: host      # avoids Chromium crashes from a tiny /dev/shm
+    init: true     # reaps zombie browser processes
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - CI=1
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+      - ./blob-report:/app/blob-report

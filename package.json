@@ -1,0 +1,38 @@
+{
+  "name": "amazon-automation",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Playwright + TypeScript framework for amazon.in: POM + component objects, fixtures, data-driven tests, deterministic unit gate, sharded CI, Docker",
+  "scripts": {
+    "test": "playwright test",
+    "test:unit": "playwright test --project=unit",
+    "test:public": "playwright test --project=public",
+    "test:account": "playwright test --project=setup --project=account",
+    "test:smoke": "playwright test --project=public --grep @smoke",
+    "test:headed": "playwright test --project=public --headed",
+    "auth:save": "tsx scripts/save-auth.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "report": "playwright show-report",
+    "docker:build": "docker compose build",
+    "docker:test": "docker compose run --rm tests"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^22.10.0",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.17.0",
+    "eslint-plugin-playwright": "^2.2.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
